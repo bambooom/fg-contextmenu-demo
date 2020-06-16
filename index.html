@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <style>
+        .container {display: flex; align-items: center; justify-content: center; margin-top: 100px;}
+        #context-menu { position:absolute; display:none; border:solid 1px #eee;}
+        #context-menu ul, #context-menu li {list-style:none;margin:0; padding:0;background:white;}
+        #context-menu li { border-bottom:solid 1px #eee; }
+        #context-menu li:last-child { border:none; }
+        #context-menu li a {display:block;padding:5px 10px;text-decoration:none;color:indianred;}
+        #context-menu li a:hover {background:indianred;color:#FFF;}
+        .visually-hidden {border:0;clip:rect(0,0,0,0);position: absolute;width: 1px;height: 1px;margin: -1px;overflow:hidden;padding: 0}
+        .alert {padding: 30px; text-align: center;}
+    </style>
+</head>
+<body>
+    <div class="container"><embed id="fg" type="image/svg+xml" , src="./a.svg" /></div>
+    <div id="context-menu">
+        <ul>
+            <li><a href="#" id="copy">Copy</a></li>
+            <li><a href="#">Item 2</a></li>
+            <li><a href="#">Item 3</a></li>
+        </ul>
+    </div>
+
+    <div class="alert" id="alert"></div>
+    <input type="text" class="visually-hidden" id="copy-input"/>
+	<script>
+        const menu = document.getElementById('context-menu');
+        const fg = document.getElementById('fg');
+        const input = document.getElementById('copy-input');
+        const copy = document.getElementById('copy');
+        const alert = document.getElementById('alert');
+
+        window.addEventListener('fgContextmenu', e => {
+            const {pageX, pageY} = e.detail.event;
+            const {x, y} = fg.getBoundingClientRect();
+            menu.style.left = (pageX + x) + 'px';
+            menu.style.top = (pageY + y) + 'px';
+            menu.style.display = 'block';
+            input.value = e.detail.text;
+        });
+        document.onclick = function(e){
+            menu.style.display = 'none';
+        };
+        copy.onclick = function(e) {
+            e.preventDefault();
+            input.select();
+            try {
+                const success = document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                alert.style.color = 'limegreen';
+                alert.innerText = 'Copied';
+            } catch (error) {
+                alert.style.color = 'red';
+                alert.innerText = 'Copy failed';
+            }
+
+            setTimeout(() => {
+                alert.innerText = '';
+            }, 2000);
+        };
+	</script>
+</body>
+</html>
